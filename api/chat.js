@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -14,20 +14,14 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages,
-        temperature: 0.85
+        temperature: 0.85,
+        messages
       })
     });
 
-    const data = await response.json();
-
-    if (response.ok) {
-      return res.status(200).json(data);
-    } else {
-      return res.status(500).json({ error: data });
-    }
-
-  } catch (error) {
-    return res.status(500).json({ error: "Server error", detail: error.message });
+    const data = await openaiRes.json();
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Error contacting OpenAI" });
   }
 }
